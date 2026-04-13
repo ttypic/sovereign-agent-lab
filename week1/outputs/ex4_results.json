@@ -14,15 +14,15 @@
         },
         {
           "role": "tool",
-          "content": "{\"matches\": [{\"name\": \"The Haymarket Vaults\", \"capacity\": 160, \"vegan\": true, \"status\": \"available\", \"address\": \"1 Dalry Road, Edinburgh\"}], \"count\": 1}"
+          "content": "{\"matches\": [{\"name\": \"The Albanach\", \"capacity\": 180, \"vegan\": true, \"status\": \"available\", \"address\": \"2 Hunter Square, Edinburgh\"}, {\"name\": \"The Haymarket Vaults\", \"capacity\": 160, \"vegan\": true, \"status\": \"available\", \"address\": \"1 Dalry Road, Edinburgh\"}], \"count\": 2}"
         },
         {
           "role": "tool",
-          "content": "{\"success\": true, \"name\": \"The Haymarket Vaults\", \"capacity\": 160, \"vegan\": true, \"status\": \"available\", \"address\": \"1 Dalry Road, Edinburgh\"}"
+          "content": "{\"success\": true, \"name\": \"The Albanach\", \"capacity\": 180, \"vegan\": true, \"status\": \"available\", \"address\": \"2 Hunter Square, Edinburgh\"}"
         },
         {
           "role": "ai",
-          "content": "The best match for your request is \"The Haymarket Vaults\" with a capacity of 160 guests and vegan options available. The full address of this venue is \"1 Dalry Road, Edinburgh\"."
+          "content": "The best match for your request is \"The Albanach\" with a capacity of 180 guests and vegan options available. The full address of this venue is 2 Hunter Square, Edinburgh."
         }
       ]
     },
