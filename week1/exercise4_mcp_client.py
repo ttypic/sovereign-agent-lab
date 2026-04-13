@@ -44,6 +44,8 @@ from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+from pydantic import create_model
+from typing import Any
 
 load_dotenv()
 
@@ -78,6 +80,23 @@ def _make_mcp_caller(tool_name: str, server_script: str):
     return call
 
 
+_JSON_TYPE_MAP = {
+    "integer": int, "number": float, "string": str,
+    "boolean": bool, "array": list, "object": dict,
+}
+
+def _schema_to_pydantic(input_schema: dict):
+    """Convert an MCP JSON schema dict to a Pydantic model for StructuredTool."""
+    properties = input_schema.get("properties", {})
+    required   = set(input_schema.get("required", []))
+    fields = {
+        name: (_JSON_TYPE_MAP.get(spec.get("type", "string"), Any),
+               ... if name in required else None)
+        for name, spec in properties.items()
+    }
+    return create_model("ToolInput", **fields)
+
+
 async def discover_tools(server_script: str) -> list:
     """
     Connect once, list all tools, and wrap each as a LangChain StructuredTool.
@@ -97,6 +116,7 @@ async def discover_tools(server_script: str) -> list:
                     func=_make_mcp_caller(t.name, server_script),
                     name=t.name,
                     description=t.description or f"MCP tool: {t.name}",
+                    args_schema=_schema_to_pydantic(t.inputSchema),
                 )
                 tools.append(lc_tool)
             return tools, [t.name for t in raw.tools]
