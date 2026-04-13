@@ -84,9 +84,16 @@ TOOLS = [
     generate_event_flyer,
 ]
 
+AGENT_PROMPT = (
+    "You are a venue research agent. Use the provided tools to gather facts before "
+    "answering. If the user asks to check availability, weather, catering, or flyer "
+    "generation, call tools directly instead of writing JSON describing function calls. "
+    "Never output a list of function-call objects as plain text."
+)
+
 # Build the agent once at module load time.
 # Rebuilding it on every call would be wasteful.
-_agent = create_react_agent(llm, TOOLS)
+_agent = create_react_agent(llm, TOOLS, prompt=AGENT_PROMPT)
 
 
 # ─── Public interface ─────────────────────────────────────────────────────────
@@ -122,10 +129,19 @@ def run_research_agent(task: str, max_turns: int = 8) -> dict:
         role    = getattr(m, "type", "unknown")
         content = m.content
 
+        # OpenAI-style tool calls are attached to AI messages.
+        for tc in getattr(m, "tool_calls", []) or []:
+            entry = {
+                "tool": tc.get("name", "unknown"),
+                "args": tc.get("args", {}),
+            }
+            tool_calls_made.append(entry)
+            full_trace.append({"role": "tool_call", **entry})
+
         # Tool-call messages have structured list content
         if isinstance(content, list):
             for block in content:
-                if isinstance(block, dict) and block.get("type") == "tool_use":
+                if isinstance(block, dict) and block.get("type") in {"tool_call", "function"}:
                     entry = {
                         "tool": block["name"],
                         "args": block.get("input", {}),
