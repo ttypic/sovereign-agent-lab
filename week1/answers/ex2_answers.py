@@ -50,7 +50,7 @@ TASK_B_IMPLEMENTED = True   # True or False
 # Which path did your run take? "live" or "placeholder"
 # Look for the "mode" field in the TOOL_RESULT output of Task B.
 # If you didn't set FLYER_IMAGE_MODEL in .env, you will get "placeholder".
-TASK_B_MODE = "FILL_ME_IN"
+TASK_B_MODE = "live"
 
 # The image URL returned by the tool. Copy exactly from your terminal output.
 # In placeholder mode this will be a placehold.co URL.
@@ -63,7 +63,8 @@ TASK_B_PROMPT_USED = "Professional event flyer for Edinburgh AI Meetup, tech pro
 # Why did the agent's behaviour NOT change when Nebius removed FLUX?
 # One sentence. This is the point of the lesson.
 TASK_B_WHY_AGENT_SURVIVED = """
-FILL ME IN
+Because the agent never hardcoded FLUX, it discovered available tools at runtime via MCP. 
+When FLUX was removed, the server simply stopped advertising it, and the agent adapted to whatever tools remained.
 """
 
 # ── Task C ─────────────────────────────────────────────────────────────────
