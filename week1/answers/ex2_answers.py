@@ -11,20 +11,20 @@ Run `python grade.py ex2` to check for obvious issues.
 # Look at [TOOL_CALL] lines in your terminal output.
 # Example: ["check_pub_availability", "get_edinburgh_weather"]
 
-TASK_A_TOOLS_CALLED = []
+TASK_A_TOOLS_CALLED = ["check_pub_availability", "calculate_catering_cost", "get_edinburgh_weather", "generate_event_flyer"]
 
 # Which venue did the agent confirm? Must be one of:
 # "The Albanach", "The Haymarket Vaults", or "none"
-TASK_A_CONFIRMED_VENUE = "none"
+TASK_A_CONFIRMED_VENUE = "The Albanach"
 
 # Total catering cost the agent calculated. Float, e.g. 5600.0
 # Write 0.0 if the agent didn't calculate it.
-TASK_A_CATERING_COST_GBP = 0.0
+TASK_A_CATERING_COST_GBP = 5600.0
 
 # Did the weather tool return outdoor_ok = True or False?
-TASK_A_OUTDOOR_OK = False
+TASK_A_OUTDOOR_OK = True
 
-TASK_A_NOTES = "For Task A, the model did not make any tool calls. Instead, it returned a list of JSON objects representing tool calls. It looks like it can't make 5 tasks at once and fall back to the text output."   # optional — anything unexpected
+TASK_A_NOTES = "Have to update `sovereign_agent/agents/research_agent.py` to correctly calculate tool calls"   # optional — anything unexpected
 
 # ── Task B ─────────────────────────────────────────────────────────────────
 
@@ -32,7 +32,7 @@ TASK_A_NOTES = "For Task A, the model did not make any tool calls. Instead, it r
 TASK_B_IMPLEMENTED = True   # True or False
 
 # The image URL returned (or the error message if still a stub).
-TASK_B_IMAGE_URL_OR_ERROR = "https://pictures-storage.storage.eu-north1.nebius.cloud/text2img-838ba9a6-6cd0-4c93-8763-f276662830fd_00001_.webp"
+TASK_B_IMAGE_URL_OR_ERROR = "https://pictures-storage.storage.eu-north1.nebius.cloud/text2img-6f965ed7-0789-45a0-a4e9-e7c43dee7422_00001_.webp"
 
 # The prompt sent to the image model. Copy from terminal output.
 TASK_B_PROMPT_USED = "Professional event flyer for Edinburgh AI Meetup, tech professionals, modern venue at The Haymarket Vaults, Edinburgh. 160 guests tonight. Warm lighting, Scottish architecture background, clean modern typography."
@@ -42,10 +42,13 @@ TASK_B_PROMPT_USED = "Professional event flyer for Edinburgh AI Meetup, tech pro
 # Scenario 1: first choice unavailable
 # Quote the specific message where the agent changed course. Min 20 words.
 SCENARIO_1_PIVOT_MOMENT = """
-The Bow Bar does not meet the capacity requirements, so the next available venue is checked. The Haymarket Vaults and The Albanach both meet the requirements, but The Albanach is chosen for the event.
+{
+  "role": "tool",
+  "content": "{\"success\": true, \"pub_name\": \"The Bow Bar\", \"address\": \"80 West Bow, Edinburgh\", \"capacity\": 80, \"vegan\": true, \"status\": \"full\", \"meets_all_constraints\": false}"
+}
 """
 
-SCENARIO_1_FALLBACK_VENUE = "The Albanach"
+SCENARIO_1_FALLBACK_VENUE = "The Haymarket Vaults"
 
 # Scenario 2: impossible constraint (300 guests)
 # Did the agent recommend a pub name not in the known venues list?
@@ -53,20 +56,19 @@ SCENARIO_2_HALLUCINATED = False   # True or False
 
 # Paste the final [AI] message.
 SCENARIO_2_FINAL_ANSWER = """
-None of the known venues meet the capacity and dietary requirements.
+Unfortunately, none of the known venues meet the capacity and dietary requirements. The Albanach, The Haymarket Vaults, and The Guilford Arms have a capacity of 180, 160, and 200 respectively, which is less than the required capacity of 300. The Bow Bar has a capacity of 80, which is also less than the required capacity, and it is currently full. Therefore, it is not possible to find a venue from the known venues that meets the requirements.
 """
 
 # Scenario 3: out of scope (train times)
 # Did the agent try to call a tool?
 SCENARIO_3_TRIED_A_TOOL = False   # True or False
 
-SCENARIO_3_RESPONSE = "Your input is lacking necessary details. Please provide more information or specify the task you need help with."
+SCENARIO_3_RESPONSE = "I am not able to execute this task as it exceeds the limitations of the functions I have been given."
 
 # Would this behaviour be acceptable in a real booking assistant? Min 30 words.
 SCENARIO_3_ACCEPTABLE = """
 No, I think response is not very human-friendly. It doesn't say what exact information is needed and how to provide it.
-And it say "specify the task you need help with" but human already specified well-formed task, there is no way they can
-deduct that trains table is missing and AI assistant can't help with that task. 
+What acceptable questions to ask are and what are not. Human has to guess what are the limitations of the AI assistant.
 """
 
 # ── Task D ─────────────────────────────────────────────────────────────────
@@ -108,5 +110,5 @@ In Rasa CALM flow every task described explicitly, model just decide the right p
 MOST_SURPRISING = """
 The agent fell back to returning text in Task A. The prompt for Task A was actually the most explicit, so 
 it was counterintuitive that the agent failed to produce a proper result and instead defaulted to text output. 
-It seems the main issue is the number of tasks included in the prompt.
+I have to add system prompt to make it work, as it was suggested in GitHub issues.
 """
